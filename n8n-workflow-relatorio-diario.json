@@ -1,0 +1,134 @@
+{
+  "name": "FSPZAP - Relatório Diário",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Todo dia 8h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://localhost:3001/api/fspzap/kpis",
+        "options": {}
+      },
+      "id": "get-kpis",
+      "name": "Buscar KPIs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 200]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://localhost:3001/api/fspzap/por-agente",
+        "options": {}
+      },
+      "id": "get-agente",
+      "name": "Por Agente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 400]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://localhost:3001/api/fspzap/satisfacao",
+        "options": {}
+      },
+      "id": "get-satisfacao",
+      "name": "Satisfação",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "const kpis = $input.first().json;\nconst agentes = $('Por Agente').first().json;\nconst satisfacao = $('Satisfação').first().json;\n\nconst hoje = new Date().toLocaleDateString('pt-BR');\n\nlet msg = `📊 *Relatório Diário FSPZAP* — ${hoje}\\n\\n`;\nmsg += `*KPIs Gerais*\\n`;\nmsg += `• Total de atendimentos: ${kpis.total}\\n`;\nmsg += `• Tempo médio de atendimento: ${kpis.tma} min\\n`;\nmsg += `• Cobertura de avaliação: ${kpis.cobertura}%\\n`;\nmsg += `• Satisfação média: ${kpis.satisfacao}/5\\n\\n`;\n\nmsg += `*Top 5 Agentes*\\n`;\nconst topAgentes = Array.isArray(agentes) ? agentes.slice(0, 5) : [];\ntopAgentes.forEach((a, i) => {\n  msg += `${i + 1}. ${a.atendente}: ${a.total} atendimentos\\n`;\n});\n\nmsg += `\\n*Distribuição de Satisfação*\\n`;\nconst satList = Array.isArray(satisfacao) ? satisfacao : [];\nsatList.forEach(s => {\n  msg += `• ${s.avaliacao} estrela(s): ${s.total}\\n`;\n});\n\nreturn [{ json: { subject: `Relatório Diário FSPZAP - ${hoje}`, body: msg } }];"
+      },
+      "id": "montar-relatorio",
+      "name": "Montar Relatório",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 400]
+    },
+    {
+      "parameters": {
+        "sendTo": "seu-email@exemplo.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {}
+      },
+      "id": "enviar-email",
+      "name": "Enviar Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [960, 400],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/SEU_WEBHOOK",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"text\": \"{{ $json.body }}\"}",
+        "options": {}
+      },
+      "id": "enviar-slack",
+      "name": "Enviar Slack",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 600]
+    }
+  ],
+  "connections": {
+    "Todo dia 8h": {
+      "main": [
+        [
+          { "node": "Buscar KPIs", "type": "main", "index": 0 },
+          { "node": "Por Agente", "type": "main", "index": 0 },
+          { "node": "Satisfação", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Buscar KPIs": {
+      "main": [
+        [{ "node": "Montar Relatório", "type": "main", "index": 0 }]
+      ]
+    },
+    "Por Agente": {
+      "main": [
+        [{ "node": "Montar Relatório", "type": "main", "index": 0 }]
+      ]
+    },
+    "Satisfação": {
+      "main": [
+        [{ "node": "Montar Relatório", "type": "main", "index": 0 }]
+      ]
+    },
+    "Montar Relatório": {
+      "main": [
+        [
+          { "node": "Enviar Email", "type": "main", "index": 0 },
+          { "node": "Enviar Slack", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

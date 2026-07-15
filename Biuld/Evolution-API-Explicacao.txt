@@ -1,0 +1,428 @@
+================================================================================
+                    EVOLUTION API - GUIA COMPLETO
+================================================================================
+
+DATA: 2026-07-11
+PROJETO: FSPZAP - Dashboard de Monitoramento WhatsApp
+STATUS: Em análise - Pausado para revisão
+
+================================================================================
+1. O QUE É A EVOLUTION API?
+================================================================================
+
+A Evolution API é uma API open-source para WhatsApp que permite enviar e
+receber mensagens programaticamente. Ela funciona como um servidor local
+que se conecta ao WhatsApp usando o protocolo do WhatsApp Web.
+
+Desenvolvida pela equipe Evolution, é mantida por uma comunidade ativa
+e está disponível gratuitamente no GitHub.
+
+Repositório: https://github.com/EvolutionAPI/evolution-api
+Documentação: https://doc.evolution-api.com
+
+================================================================================
+2. COMO FUNCIONA?
+================================================================================
+
+2.1 Arquitetura Básica
+----------------------
+
+  [Seu Bot/App] <--HTTP--> [Evolution API Server] <--WebSocket--> [WhatsApp]
+
+  - Seu bot envia/recebe mensagens via HTTP para o servidor Evolution
+  - O servidor Evolution mantém conexão WebSocket com o WhatsApp
+  - Não precisa de conta Business verificada (usa conta pessoal)
+
+2.2 Fluxo de Conexão
+---------------------
+
+  1. Você inicia o servidor Evolution API (via Docker ou npm)
+  2. O servidor gera um QR Code
+  3. Você escaneia o QR Code com o WhatsApp (como WhatsApp Web)
+  4. O servidor mantém a sessão ativa
+  5. Seu bot envia/recebe mensagens via HTTP
+
+2.3 Tipos de Conexão
+---------------------
+
+  a) WhatsApp Web (Baileys):
+     - Usa o protocolo do WhatsApp Web
+     - Mais simples de configurar
+     - Pode ser instável em alguns casos
+
+  b) WhatsApp Business API (oficial):
+     - Requer conta Meta Business verificada
+     - Mais estável e confiável
+     - Requer aprovação do Meta
+
+  c) WPPConnect:
+     - Baseado no WhatsApp Web
+     - Open-source
+     - Alternativa ao Baileys
+
+================================================================================
+3. FUNCIONALIDADES PRINCIPAIS
+================================================================================
+
+3.1 Envio de Mensagens
+----------------------
+
+  - Mensagens de texto
+  - Imagens, vídeos, documentos
+  - Localização
+  - Contatos
+  - Mensagens de áudio
+  - Stickers
+
+Exemplo:
+  POST /message/sendText/{instance}
+  {
+    "number": "5511999999999",
+    "text": "Olá! Como posso ajudar?"
+  }
+
+3.2 Recebimento de Mensagens
+-----------------------------
+
+  - Webhook para receber mensagens em tempo real
+  - Suporte a mensagens de texto, mídia, localização
+  - Processamento automático de mensagens
+
+Exemplo de payload recebido:
+  {
+    "event": "messages.upsert",
+    "instance": "minha-instancia",
+    "data": {
+      "key": {
+        "remoteJid": "5511999999999@s.whatsapp.net",
+        "fromMe": false
+      },
+      "message": {
+        "conversation": "Olá, preciso de ajuda"
+      }
+    }
+  }
+
+3.3 Gerenciamento de Instâncias
+--------------------------------
+
+  - Criar múltiplas instâncias (vários números)
+  - Conectar/desconectar instâncias
+  - Monitorar status das conexões
+  - Gerenciar QR Codes
+
+Exemplo:
+  POST /instance/create
+  {
+    "instanceName": "atendimento-1",
+    "integration": "WHATSAPP-BAILEYS"
+  }
+
+3.4 Webhooks
+------------
+
+  - Configurar URLs para receber eventos
+  - Filtrar tipos de eventos
+  - Retry automático em caso de falha
+
+Exemplo:
+  POST /webhook/set/{instance}
+  {
+    "url": "http://seu-servidor.com/webhook",
+    "events": ["messages.upsert", "connection.update"]
+  }
+
+3.5 Grupos
+----------
+
+  - Criar grupos
+  - Adicionar/remover participantes
+  - Enviar mensagens para grupos
+  - Gerenciar configurações do grupo
+
+3.6 Contatos
+------------
+
+  - Buscar contatos
+  - Verificar se número está no WhatsApp
+  - Bloquear/desbloquear contatos
+
+3.7 Perfil
+----------
+
+  - Atualizar perfil (nome, foto, descrição)
+  - Buscar perfil de contatos
+
+================================================================================
+4. INSTALAÇÃO
+================================================================================
+
+4.1 Pré-requisitos
+-------------------
+
+  - Node.js >= 18
+  - Docker (recomendado) OU npm
+  - Número de telefone para conectar
+  - Servidor 24/7 (VPS ou computador dedicado)
+
+4.2 Instalação com Docker (Recomendado)
+-----------------------------------------
+
+  # Clonar repositório
+  git clone https://github.com/EvolutionAPI/evolution-api.git
+  cd evolution-api
+
+  # Criar arquivo .env
+  cp .env.example .env
+
+  # Editar .env com suas configurações
+  # (ver seção 5 - Configuração)
+
+  # Iniciar com Docker Compose
+  docker-compose up -d
+
+4.3 Instalação com npm
+------------------------
+
+  # Clonar repositório
+  git clone https://github.com/EvolutionAPI/evolution-api.git
+  cd evolution-api
+
+  # Instalar dependências
+  npm install
+
+  # Criar arquivo .env
+  cp .env.example .env
+
+  # Iniciar
+  npm run start:prod
+
+4.4 Verificar Instalação
+--------------------------
+
+  Acesse: http://localhost:8080
+  Documentação: http://localhost:8080/docs
+
+================================================================================
+5. CONFIGURAÇÃO
+================================================================================
+
+5.1 Variáveis de Ambiente (.env)
+---------------------------------
+
+  # Porta do servidor
+  PORT=8080
+
+  # Chave de segurança (gere uma chave forte)
+  AUTHENTICATION_API_KEY=sua-chave-aqui
+
+  # Banco de dados (SQLite por padrão)
+  DATABASE_PROVIDER=postgresql
+  DATABASE_CONNECTION_URI=postgresql://user:pass@localhost:5432/evolution
+
+  # Configurações do WhatsApp
+  CONFIG_SESSION_PHONE_CLIENT=SeuBot
+  CONFIG_SESSION_PHONE_NAME=Chrome
+
+  # Webhook (opcional)
+  WEBHOOK_GLOBAL_URL=http://seu-servidor.com/webhook
+  WEBHOOK_GLOBAL_ENABLED=true
+
+5.2 Configuração no MEGAZAP
+-----------------------------
+
+  Adicionar ao .env do MEGAZAP:
+
+  # Evolution API
+  EVOLUTION_API_URL=http://localhost:8080
+  EVOLUTION_API_KEY=sua-chave-aqui
+  EVOLUTION_INSTANCE=atendimento-1
+
+================================================================================
+6. INTEGRAÇÃO COM O MEGAZAP
+================================================================================
+
+6.1 Fluxo Proposto
+-------------------
+
+  Usuário manda mensagem
+          ↓
+  Evolution API recebe
+          ↓
+  Webhook notifica MEGAZAP
+          ↓
+  Bot processa (lê bot-config.json)
+          ↓
+  Responde via Evolution API
+          ↓
+  Salva conversa no Firestore
+
+6.2 Novos Arquivos
+--------------------
+
+  server/
+  ├── routes/
+  │   └── bot.js           # Rotas do chatbot
+  ├── bot/
+  │   ├── handler.js       # Lógica principal do bot
+  │   ├── flows.js         # Gerenciador de fluxos
+  │   └── responses.js     # Respostas do FAQ
+  └── config/
+      └── bot-config.json  # Configuração do bot
+
+6.3 Firestore - Nova Coleção
+------------------------------
+
+  Coleção: fspzap_chats
+  Documento:
+  {
+    "id": "auto",
+    "numero": "+5511999999999",
+    "nome": "João Silva",
+    "status": "active|transferred|closed",
+    "currentFlow": "atendimento",
+    "currentStep": 2,
+    "data": {
+      "motivo": "Dúvida sobre produto",
+      "nome": "João Silva"
+    },
+    "messages": [
+      {
+        "from": "user|bot",
+        "text": "Olá!",
+        "timestamp": "2026-07-11T10:00:00Z"
+      }
+    ],
+    "createdAt": "timestamp",
+    "updatedAt": "timestamp"
+  }
+
+================================================================================
+7. EXEMPLOS DE USO
+================================================================================
+
+7.1 Criar Instância
+---------------------
+
+  curl -X POST http://localhost:8080/instance/create \
+    -H "Content-Type: application/json" \
+    -H "apikey: sua-chave" \
+    -d '{
+      "instanceName": "atendimento-1",
+      "integration": "WHATSAPP-BAILEYS"
+    }'
+
+7.2 Conectar Instância (QR Code)
+----------------------------------
+
+  curl http://localhost:8080/instance/connect/atendimento-1 \
+    -H "apikey: sua-chave"
+
+  Retorna QR Code para escanear
+
+7.3 Enviar Mensagem
+---------------------
+
+  curl -X POST http://localhost:8080/message/sendText/atendimento-1 \
+    -H "Content-Type: application/json" \
+    -H "apikey: sua-chave" \
+    -d '{
+      "number": "5511999999999",
+      "text": "Olá! Bem-vindo ao atendimento."
+    }'
+
+7.4 Receber Mensagens (Webhook)
+--------------------------------
+
+  Configure o webhook no MEGAZAP:
+
+  POST /api/fspzap/bot/webhook
+  {
+    "event": "messages.upsert",
+    "data": {
+      "key": {
+        "remoteJid": "5511999999999@s.whatsapp.net"
+      },
+      "message": {
+        "conversation": "1"
+      }
+    }
+  }
+
+================================================================================
+8. SEGURANÇA
+================================================================================
+
+8.1 Boas Práticas
+-------------------
+
+  - Nunca compartilhe a API Key
+  - Use HTTPS em produção
+  - Valide assinaturas de webhooks
+  - Implemente rate limiting
+  - Faça backup do banco de dados
+
+8.2 Riscos
+-----------
+
+  - Conta pessoal pode ser banada pelo WhatsApp
+  - Não usar para spam ou mensagens em massa
+  - Respeitar termos de uso do WhatsApp
+
+================================================================================
+9. LIMITAÇÕES
+================================================================================
+
+  - Não é API oficial (usa protocolo não documentado)
+  - Pode quebrar com atualizações do WhatsApp
+  - Não suporta todas as funcionalidades da API oficial
+  - Número pessoal pode ser banado em caso de abuso
+
+================================================================================
+10. ALTERNATIVAS
+================================================================================
+
+  1. WhatsApp Business API (oficial)
+     - Requer conta Meta Business verificada
+     - Mais estável, mas paga
+
+  2. Twilio
+     - Serviço pago com suporte
+     - ~$0.005 por mensagem
+
+  3. MessageBird
+     - Serviço pago
+     - Suporte a múltiplos canais
+
+  4. WPPConnect
+     - Open-source
+     - Baseado em WhatsApp Web
+
+================================================================================
+11. CHECKLIST DE IMPLEMENTAÇÃO
+================================================================================
+
+  [ ] Instalar Evolution API (Docker ou npm)
+  [ ] Configurar variáveis de ambiente
+  [ ] Criar instância e conectar WhatsApp
+  [ ] Configurar webhook no MEGAZAP
+  [ ] Criar bot-config.json com fluxos
+  [ ] Implementar handler.js
+  [ ] Criar rota /bot/webhook
+  [ ] Testar fluxos básicos
+  [ ] Integrar com Firestore
+  [ ] Adicionar página de gerenciamento no dashboard
+  [ ] Documentar API
+
+================================================================================
+12. REFERÊNCIAS
+================================================================================
+
+  - GitHub: https://github.com/EvolutionAPI/evolution-api
+  - Docs: https://doc.evolution-api.com
+  - Discord: https://discord.evolution-api.com
+  - YouTube: https://youtube.com/@evolution-api
+
+================================================================================
+FIM DO DOCUMENTO
+================================================================================

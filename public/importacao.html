@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FSPZAP - Importação</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">FSPZAP</div>
+      <nav>
+        <a href="index.html">Indicadores</a>
+        <a href="relatorio.html">Relatório</a>
+        <a href="importacao.html" class="active">Importação</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Importação</h1>
+      <p>Importe planilhas Excel com dados de atendimentos</p>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h3 style="margin-bottom: 1rem;">Última Importação</h3>
+      <div class="grid grid-4">
+        <div>
+          <div class="kpi-value" id="resumoTotal">0</div>
+          <div class="kpi-label">Total de Registros</div>
+        </div>
+        <div>
+          <div class="kpi-value" id="resumoPeriodo">-</div>
+          <div class="kpi-label">Período</div>
+        </div>
+        <div>
+          <div class="kpi-value" id="resumoAtualizacao">-</div>
+          <div class="kpi-label">Última Atualização</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem;">Upload de Planilha</h3>
+      <div class="import-area" id="dropZone">
+        <p style="font-size: 1.25rem; margin-bottom: 0.5rem;">Arraste um arquivo Excel aqui</p>
+        <p style="color: var(--text-muted);">ou clique para selecionar</p>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+      </div>
+
+      <div id="fileInfo" style="margin-top: 1rem; display: none;">
+        <p><strong>Arquivo:</strong> <span id="fileName"></span></p>
+        <p><strong>Tamanho:</strong> <span id="fileSize"></span></p>
+        <button class="btn-primary" onclick="uploadFile()" style="margin-top: 1rem;">Importar</button>
+      </div>
+
+      <div id="progressArea" style="margin-top: 1rem; display: none;">
+        <p id="progressText">Importando...</p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div id="resultArea" style="margin-top: 1rem; display: none;">
+        <div class="grid grid-4">
+          <div>
+            <div class="kpi-value" id="resultTotal">0</div>
+            <div class="kpi-label">Total de Linhas</div>
+          </div>
+          <div>
+            <div class="kpi-value" id="resultImported" style="color: var(--success);">0</div>
+            <div class="kpi-label">Importados</div>
+          </div>
+          <div>
+            <div class="kpi-value" id="resultErrors" style="color: var(--danger);">0</div>
+            <div class="kpi-label">Erros</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+        <h4 style="margin-bottom: 0.5rem;">Colunas Obrigatórias:</h4>
+        <p style="color: var(--text-muted);">ORIGEM, PROTOCOLO, STATUS, NUMERO, DATA</p>
+        <h4 style="margin-top: 1rem; margin-bottom: 0.5rem;">Colunas Opcionais:</h4>
+        <p style="color: var(--text-muted);">ATENDENTE, DEPARTAMENTO, MOTIVO, NOME, DATA_FINALIZACAO, DATA_ULTIMA_MENSAGEM, POSUI_ANEXO, AVALIACAO</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/importacao.js"></script>
+</body>
+</html>

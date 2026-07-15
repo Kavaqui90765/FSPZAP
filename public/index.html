@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FSPZAP - Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">FSPZAP</div>
+      <nav>
+        <a href="index.html" class="active">Indicadores</a>
+        <a href="relatorio.html">Relatório</a>
+        <a href="importacao.html">Importação</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Indicadores</h1>
+      <p>Painel de monitoramento de atendimentos WhatsApp</p>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label>Data Início</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="filter-group">
+        <label>Data Fim</label>
+        <input type="date" id="endDate">
+      </div>
+      <div class="filter-group">
+        <label>Atendente</label>
+        <select id="atendente">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Departamento</label>
+        <select id="departamento">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="filter-group" style="justify-content: flex-end;">
+        <label>&nbsp;</label>
+        <button class="btn-primary" onclick="loadDashboard()">Filtrar</button>
+      </div>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom: 1.5rem;">
+      <div class="card">
+        <div class="kpi-value" id="kpiTotal">0</div>
+        <div class="kpi-label">Total de Atendimentos</div>
+      </div>
+      <div class="card">
+        <div class="kpi-value" id="kpiSatisfacao">0</div>
+        <div class="kpi-label">Satisfação Média</div>
+      </div>
+      <div class="card">
+        <div class="kpi-value" id="kpiTMA">0 min</div>
+        <div class="kpi-label">Tempo Médio de Atendimento</div>
+      </div>
+      <div class="card">
+        <div class="kpi-value" id="kpiCobertura">0%</div>
+        <div class="kpi-label">Cobertura de Avaliação</div>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3 style="margin-bottom: 1rem;">Atendimentos por Agente</h3>
+        <div class="chart-container">
+          <canvas id="chartAgente"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom: 1rem;">Atendimentos por Departamento</h3>
+        <div class="chart-container">
+          <canvas id="chartDepartamento"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top: 1.5rem;">
+      <div class="card">
+        <h3 style="margin-bottom: 1rem;">Distribuição por Hora</h3>
+        <div class="chart-container">
+          <canvas id="chartHora"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom: 1rem;">Distribuição de Avaliações</h3>
+        <div class="chart-container">
+          <canvas id="chartSatisfacao"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FSPZAP - Relatório</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">FSPZAP</div>
+      <nav>
+        <a href="index.html">Indicadores</a>
+        <a href="relatorio.html" class="active">Relatório</a>
+        <a href="importacao.html">Importação</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-header">
+      <h1>Relatório</h1>
+      <p>Lista detalhada de atendimentos</p>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label>Data Início</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="filter-group">
+        <label>Data Fim</label>
+        <input type="date" id="endDate">
+      </div>
+      <div class="filter-group">
+        <label>Atendente</label>
+        <select id="atendente">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Departamento</label>
+        <select id="departamento">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="filter-group" style="justify-content: flex-end;">
+        <label>&nbsp;</label>
+        <button class="btn-primary" onclick="loadRelatorio()">Filtrar</button>
+        <button class="btn-secondary" onclick="exportCSV()">Exportar CSV</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Protocolo</th>
+              <th>Origem</th>
+              <th>Status</th>
+              <th>Atendente</th>
+              <th>Departamento</th>
+              <th>Nome</th>
+              <th>Número</th>
+              <th>Data</th>
+              <th>Avaliação</th>
+              <th>Tempo (min)</th>
+            </tr>
+          </thead>
+          <tbody id="relatorioTable">
+          </tbody>
+        </table>
+      </div>
+      <div id="pagination" style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.5rem;">
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/relatorio.js"></script>
+</body>
+</html>
