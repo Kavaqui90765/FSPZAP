@@ -1,0 +1,8 @@
+--- baixar o Docker.Desktop ---
+--- instalar contêiner ---
+--waha-1: WhatsApp 
+-postgres-1
+-redis-1
+--N8N: configura o boot se necessário 
+
+== -  esses são os itens que vem com o doc, só pra confirmar. - ===
